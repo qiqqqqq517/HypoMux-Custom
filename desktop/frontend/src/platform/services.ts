@@ -66,8 +66,7 @@ export type RoutingSnapshot = Omit<GeneratedRoutingSnapshot, "match_order" | "re
 
 export type AdapterView = GeneratedAdapterView & { is_virtual?: boolean; ipv6_gateway?: string; ipv6_metric?: number; ipv6_automatic_metric?: boolean };
 
-export type CompleteAppSettings = Omit<AppSettings, "ai_enabled"> & {
-  ai_enabled?: boolean;
+export type CompleteAppSettings = Omit<AppSettings, never> & {
   update_channel?: "stable" | "preview";
   strategy?: string;
   steam_cdn_enabled?: boolean;
