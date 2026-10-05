@@ -1,4 +1,17 @@
-# HypoMux
+# HypoMux Custom (HypoMux 定制版)
+
+> ### ⚠️ This is an unofficial modified version
+>
+> This repository is **HypoMux Custom**, a modified version based on upstream [Hypostasis-Cat/HypoMux](https://github.com/Hypostasis-Cat/HypoMux) `v2.7.0` (commit `427e4ec`). It is **not** an upstream release, is **not affiliated** with the upstream author, and is **not endorsed** by them.
+>
+> | Item | Detail |
+> |---|---|
+> | What changed / by whom / when | See **[NOTICE.md](NOTICE.md)** |
+> | Official builds (signed installer) | [Upstream Releases](https://github.com/Hypostasis-Cat/HypoMux/releases/latest) · [hypomux.com](https://hypomux.com) |
+> | License | Upstream **AGPL-3.0**, unmodified · [LICENSE](LICENSE) |
+> | Prebuilt installer | **Not provided** by this repository (the upstream SignPath signing chain cannot be reproduced) |
+>
+> Main changes: the AI assistant and Mux companion module were removed; the per-datagram UDP hot path was optimised (lock-free latency snapshot, no per-packet string allocation, etc., each with measured numbers).
 
 <p align="center">
   <img src="support/icon.ico" alt="HypoMux icon" width="128" height="128"><br><br>
@@ -6,24 +19,26 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Version-2.7.0-0078d4?style=flat-square" alt="Version 2.7.0">
+  <img src="https://img.shields.io/badge/Version-1.0.0%20Custom-0078d4?style=flat-square" alt="Version 1.0.0 Custom">
   <img src="https://img.shields.io/badge/Core-Go-00ADD8?style=flat-square&logo=go&logoColor=white" alt="Go">
   <img src="https://img.shields.io/badge/Desktop-Wails%20v3-CB3837?style=flat-square" alt="Wails v3">
   <img src="https://img.shields.io/badge/UI-React%20%2B%20Fluent%20UI-61DAFB?style=flat-square&logo=react&logoColor=black" alt="React and Fluent UI">
   <img src="https://img.shields.io/badge/Platform-Windows%2010%20%2F%2011-0078D4?style=flat-square&logo=windows" alt="Windows 10 and 11">
 </p>
 
-HypoMux is an open-source multi-adapter aggregation and split-routing utility for Windows. It distributes multi-connection download workloads across active network adapters, allowing Ethernet, Wi-Fi, mobile hotspots, and USB tethering to carry traffic at the same time.
+The following describes **upstream HypoMux** (this custom version changes it as noted above). HypoMux is an open-source multi-adapter aggregation and split-routing utility for Windows. It distributes multi-connection download workloads across active network adapters, allowing Ethernet, Wi-Fi, mobile hotspots, and USB tethering to carry traffic at the same time.
 
 HypoMux balances independent connections; it does not split one TCP connection across multiple paths. It works best with highly concurrent workloads such as Steam updates, IDM downloads, game launchers, and large browser downloads. A single-connection transfer remains limited by that connection.
 
-## What's new in 2.7.0
+## Custom changes (1.0.0)
 
-- **Hotspot and diagnostics**: Experimental Windows aggregation hotspot, Wi-Fi QR codes, device details, and MTU probing/restoration.
-- **Scheduling and routing**: Adaptive speed, latency-first scheduling, reject rules, and Clash/sing-box rule-set subscriptions.
-- **Reliability and updates**: Improved Steam optimization, TUN startup, and FakeIP caching; bundled sing-box 1.14.2; stable/preview update channels.
+Changes in this custom version relative to upstream `v2.7.0` (full list and legal notice in [NOTICE.md](NOTICE.md)):
 
-See the complete [v2.7.0 release notes](.github/release-notes/v2.7.0.en.md) and the [release versioning guide](docs/RELEASE_VERSIONING.md) for publishing stable, Beta, and RC builds.
+- **Removed the AI assistant and Mux companion module**: deleted the Go `ai_*.go` files (13 files), the entire frontend `src/components/ai/` tree (layered / Live2D skins and wardrobe), related assets, docs, and the dependencies that became unused.
+- **Optimised the per-datagram UDP hot path**: the scheduler mutex is no longer taken per packet (an atomically published snapshot is read instead); the flow key uses `netip.AddrPort` so the `host:port` string is built only when a flow is created; `SetReadDeadline` is refreshed only once the previous deadline elapses; candidate-list allocation went from 4 allocations to 1. Every change carries measured before/after numbers (see the commit messages).
+- **Adjusted CI**: kept the four upstream workflows (they carry the upstream signing/release chain) but switched the two that auto-trigger on `push` to **manual-trigger only**, so nothing auto-runs and fails on push; added a separate build-and-test validation workflow.
+
+Upstream `2.7.0` feature notes: [upstream v2.7.0 release notes](.github/release-notes/v2.7.0.en.md).
 
 ## Desktop architecture migration (2.5.0)
 
@@ -36,7 +51,9 @@ Version 2.5.0 completes the desktop migration from the former Python/Qt and tran
 - **Reliable recovery**: Windows system-proxy state is snapshotted and restored atomically. Recovery is retried after failed startup, abnormal exit, or the next launch.
 - **New personalization and diagnostics**: Fluent UI, light/dark themes, Mica/material effects, custom backgrounds, adapter health checks, live connections, support logs, and update checks.
 
-## Sponsors
+## Sponsors (upstream)
+
+> **The signing and release chain described below belongs to upstream HypoMux and does not apply to this custom version**: this repository ships no prebuilt installer and has no SignPath signing configured. Retained verbatim for upstream attribution and traceability.
 
 <p align="center">
   <a href="https://signpath.io/"><img src="support/SignPath/SignPath.png" alt="SignPath" height="38" /></a>&nbsp;&nbsp;
@@ -62,9 +79,11 @@ HypoMux does not sell personal data or upload telemetry by default. Requested fe
 
 ## Download
 
-> **Windows installer:** [GitHub Releases](https://github.com/Hypostasis-Cat/HypoMux/releases/latest) · [Tencent CNB Release](https://cnb.cool/Hypostasis-Cat/HypoMux/-/releases/latest)
+> **This custom version provides no prebuilt installer**: build it yourself using "Development and building" below, or use the upstream official installer.
+
+> **Upstream Windows installer:** [GitHub Releases](https://github.com/Hypostasis-Cat/HypoMux/releases/latest) · [Tencent CNB Release](https://cnb.cool/Hypostasis-Cat/HypoMux/-/releases/latest)
 >
-> Download the latest `HypoMux_Setup_*.exe`. Official releases are built by GitHub Actions and signed through SignPath.
+> Download the latest `HypoMux_Setup_*.exe`. Upstream official releases are built by GitHub Actions and signed through SignPath.
 
 ## UI preview
 
@@ -225,82 +244,32 @@ If you're also interested in multi-NIC traffic distribution and low-level networ
 
 ##  Support & Sponsorship
 
-HypoMux is an open-source project driven purely by technical passion, independently developed and maintained by the author in their spare time. The author is currently a student, and the in-depth development and daily maintenance of the project (such as frequent use of AI tools for refactoring, API testing, etc.) involve certain real costs. If you find this tool genuinely solves your networking pain points, feel free to buy the author a coffee to support the continuous iteration of this project!
+**This repository is a custom version of upstream HypoMux, not the upstream project itself.**
 
->  **Note:** Give within your means. Sponsorship is purely voluntary, and you can always use HypoMux's core features for free, regardless of whether you sponsor!
->
-> Please leave your nickname when sponsoring!
+- To support the **original HypoMux project and its author**, please visit the upstream repository: <https://github.com/Hypostasis-Cat/HypoMux>
+- This repository **accepts no donations** and provides no payment details. The donation QR codes in the upstream README belong to the original author and are not reproduced here.
+- This custom version is maintained by [@qiqqqqq517](https://github.com/qiqqqqq517). See [NOTICE.md](NOTICE.md) for what changed, by whom, and when.
 
-<div align="center">
-  <table>
-    <tr>
-      <td align="center" width="320">
-        <img src="support/wei.png" alt="WeChat Sponsorship QR Code" width="260" />
-        <br />
-        <sub>WeChat Sponsorship (Please note: HypoMux Support)</sub>
-      </td>
-      <td align="center" width="320">
-        <img src="support/zhi.jpg" alt="Alipay Sponsorship QR Code" width="260" />
-        <br />
-        <sub>Alipay Sponsorship (Please note: HypoMux Support)</sub>
-      </td>
-    </tr>
-  </table>
-</div>
+### Developer Statement
 
+- **On roadmap**: this custom version makes no commitment about future features.
+- **On liability**: released under **AGPL-3.0**, provided "as is", without any liability for direct or indirect damages arising from its use.
 
-### ️ Developer Statement
-* **Regarding Feature Direction**: This project has a clear technical roadmap and architectural boundaries. All sponsorships are voluntary donations, and **sponsorship does not equate to commercial customization, nor can it directly determine or influence the direction of future feature development**.
-* **Regarding Disclaimer**: This project is open-sourced under the **AGPL-3.0** license. The software is provided "as is", and the author assumes no liability for any direct or indirect damages resulting from the use of this tool.
-
-### Individual Supporters
-
-Thanks to all supporters who have injected energy into HypoMux:
-
-#### ✨ Special Thanks
-
-<p align="center">
-  <a href="https://github.com/Hypostasis-Cat/HypoMux"><img alt="Anonymous, special thanks" src="https://img.shields.io/badge/%E5%8C%BF%E5%90%8D-%E7%BB%99%E7%8C%AB%E5%92%AA%E5%8F%91%E7%94%B5-DCD0FF?style=for-the-badge&logo=github-sponsors&logoColor=6A5ACD&labelColor=E6E6FA" /></a>
-  <a href="https://github.com/Hypostasis-Cat/HypoMux"><img alt="Anonymous, special thanks" src="https://img.shields.io/badge/%E5%8C%BF%E5%90%8D-%E7%BB%99%E7%8C%AB%E5%92%AA%E5%8F%91%E7%94%B5-DCD0FF?style=for-the-badge&logo=github-sponsors&logoColor=6A5ACD&labelColor=E6E6FA" /></a>
-  <a href="https://github.com/Hypostasis-Cat/HypoMux"><img alt="六花 DY, special thanks" src="https://img.shields.io/static/v1?label=%E5%85%AD%E8%8A%B1%20DY&message=%E7%BB%99%E7%8C%AB%E5%92%AA%E5%8F%91%E7%94%B5&color=DCD0FF&labelColor=E6E6FA&style=for-the-badge&logo=github-sponsors&logoColor=6A5ACD" /></a>
-  <a href="https://github.com/Hypostasis-Cat/HypoMux"><img alt="Anonymous, special thanks" src="https://img.shields.io/badge/%E5%8C%BF%E5%90%8D-%E7%BB%99%E7%8C%AB%E5%92%AA%E5%8F%91%E7%94%B5-DCD0FF?style=for-the-badge&logo=github-sponsors&logoColor=6A5ACD&labelColor=E6E6FA" /></a>
-  <a href="https://github.com/Hypostasis-Cat/HypoMux"><img alt="Anonymous, special thanks" src="https://img.shields.io/badge/%E5%8C%BF%E5%90%8D-%E7%BB%99%E7%8C%AB%E5%92%AA%E5%8F%91%E7%94%B5-DCD0FF?style=for-the-badge&logo=github-sponsors&logoColor=6A5ACD&labelColor=E6E6FA" /></a>
-</p>
-
-#### ☕ Coffee Support
-
-<p align="center">
-  <a href="https://github.com/Hypostasis-Cat/HypoMux"><img alt="Liang, ¥5 coffee support" src="https://img.shields.io/static/v1?label=%E8%B0%85&message=%C2%A55&color=orange&style=for-the-badge&logo=coffeescript&logoColor=white" /></a>
-  <a href="https://github.com/Hypostasis-Cat/HypoMux"><img alt="Anonymous, ¥5 coffee support" src="https://img.shields.io/static/v1?label=Anonymous&message=%C2%A55&color=orange&style=for-the-badge&logo=coffeescript&logoColor=white" /></a>
-  <a href="https://github.com/Hypostasis-Cat/HypoMux"><img alt="Shout_bb, ¥6.66 coffee support" src="https://img.shields.io/static/v1?label=Shout_bb&message=%C2%A56.66&color=orange&style=for-the-badge&logo=coffeescript&logoColor=white" /></a>
-  <a href="https://github.com/Hypostasis-Cat/HypoMux"><img src="https://img.shields.io/badge/Whale-%20Buy%20a%20Coffee-orange?style=for-the-badge&logo=coffeescript&logoColor=white" alt="Whale, coffee support"></a>
-  <a href="https://github.com/Hypostasis-Cat/HypoMux"><img alt="Anonymous, coffee support" src="https://img.shields.io/badge/%E5%8C%BF%E5%90%8D-%E8%AF%B7%E5%96%9D%E5%92%96%E5%95%A1-orange?style=for-the-badge&logo=coffeescript&logoColor=white" /></a>
-  <a href="https://github.com/Hypostasis-Cat/HypoMux"><img alt="Anonymous, coffee support" src="https://img.shields.io/badge/%E5%8C%BF%E5%90%8D-%E8%AF%B7%E5%96%9D%E5%92%96%E5%95%A1-orange?style=for-the-badge&logo=coffeescript&logoColor=white" /></a>
-  <a href="https://github.com/Hypostasis-Cat/HypoMux"><img alt="Anonymous, coffee support" src="https://img.shields.io/badge/%E5%8C%BF%E5%90%8D-%E8%AF%B7%E5%96%9D%E5%92%96%E5%95%A1-orange?style=for-the-badge&logo=coffeescript&logoColor=white" /></a>
-  <a href="https://github.com/Hypostasis-Cat/HypoMux"><img alt="廾阁, coffee support" src="https://img.shields.io/badge/%E5%BB%BE%E9%98%81-%E8%AF%B7%E5%96%9D%E5%92%96%E5%95%A1-orange?style=for-the-badge&logo=coffeescript&logoColor=white" /></a>
-  <a href="https://github.com/Hypostasis-Cat/HypoMux"><img alt="Anonymous, coffee support" src="https://img.shields.io/badge/%E5%8C%BF%E5%90%8D-%E8%AF%B7%E5%96%9D%E5%92%96%E5%95%A1-orange?style=for-the-badge&logo=coffeescript&logoColor=white" /></a>
-  <a href="https://github.com/Hypostasis-Cat/HypoMux"><img alt="Anonymous, coffee support" src="https://img.shields.io/badge/%E5%8C%BF%E5%90%8D-%E8%AF%B7%E5%96%9D%E5%92%96%E5%95%A1-orange?style=for-the-badge&logo=coffeescript&logoColor=white" /></a>
-  <a href="https://github.com/Hypostasis-Cat/HypoMux"><img alt="Anonymous, coffee support" src="https://img.shields.io/badge/%E5%8C%BF%E5%90%8D-%E8%AF%B7%E5%96%9D%E5%92%96%E5%95%A1-orange?style=for-the-badge&logo=coffeescript&logoColor=white" /></a>
-  <a href="https://github.com/Hypostasis-Cat/HypoMux"><img alt="Anonymous, coffee support" src="https://img.shields.io/badge/%E5%8C%BF%E5%90%8D-%E8%AF%B7%E5%96%9D%E5%92%96%E5%95%A1-orange?style=for-the-badge&logo=coffeescript&logoColor=white" /></a>
-  <a href="https://github.com/Hypostasis-Cat/HypoMux"><img alt="Anonymous, coffee support" src="https://img.shields.io/badge/%E5%8C%BF%E5%90%8D-%E8%AF%B7%E5%96%9D%E5%92%96%E5%95%A1-orange?style=for-the-badge&logo=coffeescript&logoColor=white" /></a>
-  <a href="https://github.com/Hypostasis-Cat/HypoMux"><img alt="Anonymous, coffee support" src="https://img.shields.io/badge/%E5%8C%BF%E5%90%8D-%E8%AF%B7%E5%96%9D%E5%92%96%E5%95%A1-orange?style=for-the-badge&logo=coffeescript&logoColor=white" /></a>
-  <a href="https://github.com/Hypostasis-Cat/HypoMux"><img alt="SK, coffee support" src="https://img.shields.io/badge/SK-%E8%AF%B7%E5%96%9D%E5%92%96%E5%95%A1-orange?style=for-the-badge&logo=coffeescript&logoColor=white" /></a>
-  <a href="https://github.com/Hypostasis-Cat/HypoMux"><img alt="WZLN, coffee support" src="https://img.shields.io/static/v1?label=WZLN&message=%E8%AF%B7%E5%96%9D%E5%92%96%E5%95%A1&color=orange&style=for-the-badge&logo=coffeescript&logoColor=white" /></a>
-  <a href="https://github.com/Hypostasis-Cat/HypoMux"><img alt="幸運上上簽, coffee support" src="https://img.shields.io/static/v1?label=%E5%B9%B8%E9%81%8B%E4%B8%8A%E4%B8%8A%E7%B1%A4&message=%E8%AF%B7%E5%96%9D%E5%92%96%E5%95%A1&color=orange&style=for-the-badge&logo=coffeescript&logoColor=white" /></a>
-  <a href="https://github.com/Hypostasis-Cat/HypoMux"><img alt="Anonymous, coffee support" src="https://img.shields.io/badge/%E5%8C%BF%E5%90%8D-%E8%AF%B7%E5%96%9D%E5%92%96%E5%95%A1-orange?style=for-the-badge&logo=coffeescript&logoColor=white" /></a>
-  <a href="https://github.com/Hypostasis-Cat/HypoMux"><img alt="HEDE WANG, coffee support" src="https://img.shields.io/static/v1?label=HEDE%20WANG&message=%E8%AF%B7%E5%96%9D%E5%92%96%E5%95%A1&color=orange&style=for-the-badge&logo=coffeescript&logoColor=white" /></a>
-  <a href="https://github.com/Hypostasis-Cat/HypoMux"><img alt="画船倾雨, coffee support" src="https://img.shields.io/static/v1?label=%E7%94%BB%E8%88%B9%E5%80%BE%E9%9B%A8&message=%E8%AF%B7%E5%96%9D%E5%92%96%E5%95%A1&color=orange&style=for-the-badge&logo=coffeescript&logoColor=white" /></a>
-  <a href="https://github.com/Hypostasis-Cat/HypoMux"><img alt="Anonymous, coffee support" src="https://img.shields.io/badge/%E5%8C%BF%E5%90%8D-%E8%AF%B7%E5%96%9D%E5%92%96%E5%95%A1-orange?style=for-the-badge&logo=coffeescript&logoColor=white" /></a>
-</p>
-
-Thank you again for your respect and support for the open-source community and independent developers!
+The upstream project's historical supporter list lives in the upstream README and is not duplicated here.
 
 ##  Star History
 
-Join us on our journey to push Windows multi-adapter aggregation to its absolute limits!
+Star history of the **upstream HypoMux repository** (not this repository):
 
 [![Star History Chart](https://api.star-history.com/svg?repos=Hypostasis-Cat/HypoMux&type=Date)](https://star-history.com/#Hypostasis-Cat/HypoMux&Date)
 
 ##  License
 
-This project is licensed under the **AGPL-3.0** License.
+This project (**HypoMux Custom**) is licensed under the **AGPL-3.0** License, the same license as upstream HypoMux. **The license itself is unmodified.**
+
+- Full license text: [LICENSE](LICENSE)
+- Modification notice (what changed, by whom, when): [NOTICE.md](NOTICE.md)
+- Under AGPL-3.0 §5(a) this repository is a *modified version*; NOTICE.md is the prominent modification notice.
+- Under AGPL-3.0 the complete corresponding source of this modified version is this repository; anyone may obtain, modify and redistribute it under the same AGPL-3.0 terms.
+- Copyright remains with the original author and the HypoMux contributors. This custom version claims **no copyright over the original work**.
+- This repository is not affiliated with, nor endorsed by, the upstream author, and is not an official website or release channel.

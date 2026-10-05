@@ -1,10 +1,9 @@
 name: Build Desktop
 
+# 定制版说明：本 workflow 属于上游的签名发布链路，依赖本仓库不具备的密钥
+# （SignPath 代码签名 / CNB 镜像 / signed update channel）。为避免推送到本仓库时
+# 自动运行并失败，触发方式已改为仅手动（workflow_dispatch）。日常校验见 validate.yml。
 on:
-  push:
-    branches: [main]
-  pull_request:
-    branches: [main]
   workflow_dispatch:
     inputs:
       signing_mode:

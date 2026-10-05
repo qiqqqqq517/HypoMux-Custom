@@ -1,0 +1,95 @@
+name: Validate (build & test)
+
+# 本仓库是 HypoMux 定制版（见 NOTICE.md）。
+# 上游原有的 4 条 workflow 已移除：它们依赖上游专有的签名与发布密钥
+# （SignPath 代码签名、CNB 镜像、signed update channel），在本仓库无法运行，
+# 且其中的 publish 路径会创建 Release。本 workflow 只做构建与测试校验，
+# 不签名、不发布、不创建 Release。
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validate-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  validate:
+    name: Build and test
+    # 项目是 Windows-only（TUN / WFP / 路由 / DNS 均有 _windows.go 实现与构建标签）。
+    runs-on: windows-2025
+    steps:
+      - name: Check out
+        uses: actions/checkout@v5
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.34.5
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: desktop/frontend/pnpm-lock.yaml
+
+      - name: Set up Go
+        uses: actions/setup-go@v7
+        with:
+          go-version-file: desktop/go.mod
+          cache-dependency-path: |
+            desktop/go.sum
+            engine/go.sum
+
+      - name: Install frontend dependencies
+        shell: pwsh
+        run: pnpm --dir desktop/frontend install --frozen-lockfile
+
+      - name: Install Wails CLI
+        shell: pwsh
+        run: go install github.com/wailsapp/wails/v3/cmd/wails3@v3.0.0-alpha2.119
+
+      # desktop/main.go 用 //go:embed 嵌入 frontend/dist，因此必须先有绑定与前端产物。
+      - name: Generate Wails frontend bindings
+        working-directory: desktop
+        shell: pwsh
+        run: wails3 generate bindings -clean=true -ts -i
+
+      - name: Run frontend tests
+        shell: pwsh
+        run: pnpm --dir desktop/frontend test
+
+      - name: Build frontend assets
+        shell: pwsh
+        run: pnpm --dir desktop/frontend build
+
+      - name: Test and vet Go modules
+        shell: pwsh
+        run: |
+          go -C engine test ./...
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          go -C desktop test ./...
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          go -C engine vet ./...
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          go -C desktop vet ./...
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Verify Go formatting
+        shell: pwsh
+        run: |
+          $files = @(git ls-files -- '*.go' | Where-Object { $_ -like 'engine/*' -or $_ -like 'desktop/*' })
+          if ($files.Count -eq 0) { throw 'No Go files found to check.' }
+          $unformatted = & gofmt -l @files
+          if ($unformatted) {
+            Write-Error "Unformatted Go files:`n$($unformatted -join "`n")"
+            exit 1
+          }

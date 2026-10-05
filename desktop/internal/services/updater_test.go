@@ -180,13 +180,20 @@ func TestUpdaterChoosesNewestMetadataSource(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	// 定制版：本仓库主版本可能为 1（独立版本线）。此时 major-1.0.0 会等于 0.0.0，
+	// 与下方 CNB 夹具的固定版本相撞，更新器会因「同一版本两源元数据不一致」而报错，
+	// 属于夹具碰撞而非逻辑缺陷。故主版本为 1 时改用仍严格更旧、且不与夹具相撞的版本。
+	olderCandidate := fmt.Sprintf("%d.0.0", major-1)
+	if major <= 1 {
+		olderCandidate = "0.0.1"
+	}
 	for _, candidate := range []struct {
 		version   string
 		available bool
 	}{
 		{fmt.Sprintf("%d.0.0", major+1), true},
 		{stableVersion, isNewerVersion(stableVersion, CurrentVersion)},
-		{fmt.Sprintf("%d.0.0", major-1), false},
+		{olderCandidate, false},
 	} {
 		t.Run(candidate.version, func(t *testing.T) {
 			githubManifest, githubSignature := signedManifestJSON(t, testManifest(candidate.version, []byte("new")))

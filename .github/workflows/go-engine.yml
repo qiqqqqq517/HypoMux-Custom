@@ -1,20 +1,8 @@
 name: Validate Go Engine
 
+# 定制版说明：触发方式由 push/pull_request 改为仅手动，避免自动运行；
+# 日常校验见 validate.yml。
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'engine/**'
-      - 'bin/sing-box.exe'
-      - 'protocol/**'
-      - '.github/workflows/go-engine.yml'
-  pull_request:
-    branches: [main]
-    paths:
-      - 'engine/**'
-      - 'bin/sing-box.exe'
-      - 'protocol/**'
-      - '.github/workflows/go-engine.yml'
   workflow_dispatch:
 
 permissions:

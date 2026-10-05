@@ -1,6 +1,6 @@
 {
   "zh": {
-    "window_title": "HypoMux - Windows 多网卡双协议分流加速",
+    "window_title": "HypoMux 定制版 - Windows 多网卡双协议分流加速",
     "subtitle": "多网卡 HTTP/HTTPS/SOCKS 分流引擎 · 实时分流大屏",
     "settings_btn": "设置",
     "status_loading": "状态: 正在加载网卡...",
@@ -320,7 +320,7 @@
     "about_qr_missing": "收款码未找到",
     "tray_show_main": "显示主界面",
     "tray_exit": "退出程序",
-    "tray_tooltip": "HypoMux - 多网卡加速",
+    "tray_tooltip": "HypoMux 定制版 - 多网卡加速",
     "blocked_title": "单网卡被墙域名",
     "blocked_hint": "当某网卡连接目标域名失败、但其他网卡可连通时，自动记录该域名为该网卡的黑名单。后续分流将自动规避。",
     "blocked_enable": "启用自动分流清单",
@@ -344,7 +344,7 @@
     "home_bw_column_hint": "相对比例：数值越大，分配到的新连接越多；默认均为 1，不会限制网卡速度。"
   },
   "en": {
-    "window_title": "HypoMux - Multi-NIC Dual-Protocol Traffic Splitting",
+    "window_title": "HypoMux Custom - Multi-NIC Dual-Protocol Traffic Splitting",
     "subtitle": "Multi-NIC HTTP/HTTPS/SOCKS Splitting Engine · Live Dashboard",
     "settings_btn": "Settings",
     "status_loading": "Status: Loading network adapters...",
@@ -664,7 +664,7 @@
     "about_qr_missing": "QR code not found",
     "tray_show_main": "Show Main Panel",
     "tray_exit": "Exit",
-    "tray_tooltip": "HypoMux - Multi-NIC Acceleration",
+    "tray_tooltip": "HypoMux Custom - Multi-NIC Acceleration",
     "blocked_title": "Per-NIC Blocked Domains",
     "blocked_hint": "When a domain fails to connect on one NIC but works on others, it is automatically recorded as blocked for that NIC. Future connections will bypass the blocked NIC.",
     "blocked_enable": "Enable Auto Bypass List",
